@@ -60,7 +60,10 @@
                 "autoFollowEntityTypeList": false,
                 "emailReplyForceHtml": false,
                 "emailReplyToAllByDefault": false,
-                "signature": false
+                "signature": false,
+                "followCreatedEntities": false,
+                "followEntityOnStreamPost": false,
+                "doNotFillAssignedUserIfNotRequired": false
             },
             "Call": {
                 "reminders": false
@@ -112,6 +115,10 @@
         }
     },
     "scopeLevelTypesDefaults": {
+        "boolean": false,
+        "record": false
+    },
+    "scopeLevelTypesStrictDefaults": {
         "boolean": false,
         "record": false
     }

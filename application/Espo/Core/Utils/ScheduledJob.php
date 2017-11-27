@@ -28,6 +28,7 @@
  ************************************************************************/
 
 namespace Espo\Core\Utils;
+
 use Espo\Core\Exceptions\NotFound;
 
 class ScheduledJob
@@ -43,6 +44,13 @@ class ScheduledJob
     protected $cronFile = 'cron.php';
 
     protected $allowedMethod = 'run';
+
+    /**
+     * Last cron run time to check if crontab is configured properly
+     *
+     * @var string
+     */
+    protected $lastCronRunTime = '24 hours';
 
     /**
      * @var array - path to cron job files
@@ -193,4 +201,37 @@ class ScheduledJob
         );
     }
 
+    /**
+     * Check if crontab is configured properly
+     *
+     * @return boolean
+     */
+    public function isCronConfigured()
+    {
+        $nowDate = new \DateTime('now', new \DateTimeZone("UTC"));
+        $startDate = new \DateTime('-' . $this->lastCronRunTime, new \DateTimeZone("UTC"));
+
+        $query = "
+            SELECT job.id FROM scheduled_job
+            LEFT JOIN job ON job.scheduled_job_id = scheduled_job.id AND job.deleted = 0
+            WHERE
+                scheduled_job.job = 'Dummy'
+                AND scheduled_job.deleted = 0
+                AND job.execute_time BETWEEN '". $startDate->format('Y-m-d H:i:s') ."' AND '". $nowDate->format('Y-m-d H:i:s') ."'
+                AND (job.status IN ('Success', 'Failed') OR (job.status = 'Pending' AND job.execute_time >= '". $nowDate->modify('-1 hour')->format('Y-m-d H:i:s') ."') )
+            ORDER BY job.execute_time DESC
+        ";
+
+        $pdo = $this->getEntityManager()->getPDO();
+        $sth = $pdo->prepare($query);
+        $sth->execute();
+
+        $row = $sth->fetch(\PDO::FETCH_ASSOC);
+
+        if (!empty($row['id'])) {
+            return true;
+        }
+
+        return false;
+    }
 }

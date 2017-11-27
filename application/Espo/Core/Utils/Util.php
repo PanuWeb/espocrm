@@ -447,7 +447,7 @@ class Util
     public static function getClassName($filePath)
     {
         $className = preg_replace('/\.php$/i', '', $filePath);
-        $className = preg_replace('/^(application|custom)\//i', '', $className);
+        $className = preg_replace('/^(application|custom)(\/|\\\)/i', '', $className);
         $className = '\\'.static::toFormat($className, '\\');
 
         return $className;
@@ -601,6 +601,19 @@ class Util
         }
 
         return $array;
+    }
+
+    /**
+     * Array keys exists
+     *
+     * @param  array  $keys
+     * @param  array  $array
+     *
+     * @return boolean
+     */
+    static public function arrayKeysExists(array $keys, array $array)
+    {
+       return !array_diff_key(array_flip($keys), $array);
     }
 }
 

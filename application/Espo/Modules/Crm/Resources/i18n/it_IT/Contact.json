@@ -15,7 +15,12 @@
     "campaign": "Campaign",
     "targetLists": "Liste di destinazione",
     "targetList": "Lista di destinazione",
-    "portalUser": "Portal User"
+    "portalUser": "Portal User",
+    "originalLead": "Original Lead",
+    "acceptanceStatus": "Stato accettazione",
+    "accountIsInactive": "Account inattivo",
+    "acceptanceStatusMeetings": "Stato accettazione (riunioni)",
+    "acceptanceStatusCalls": "Stato accettazione (chiamate)"
   },
   "links": {
     "opportunities": "Opportunita'",
@@ -26,7 +31,9 @@
     "account": "Account (Primario)",
     "accounts": "Account",
     "casesPrimary": "Casi (Primario)",
-    "portalUser": "Portale Utente"
+    "portalUser": "Portale Utente",
+    "originalLead": "Original Lead",
+    "documents": "Documenti"
   },
   "labels": {
     "Create Contact": "Crea Contatto"
@@ -41,6 +48,7 @@
   },
   "presetFilters": {
     "portalUsers": "Portale Utenti",
-    "notPortalUsers": "Nessun Portale Utenti"
+    "notPortalUsers": "Nessun Portale Utenti",
+    "accountActive": "Attivo"
   }
 }

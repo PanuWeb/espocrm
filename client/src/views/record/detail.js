@@ -637,6 +637,7 @@ Espo.define('views/record/detail', ['views/record/base', 'view-record-helper'], 
                     this.model.set(this.attributes);
                 }
                 this.setIsNotChanged();
+                $(window).off('scroll.detail-' + this.numId);
             }, this);
 
             this.numId = Math.floor((Math.random() * 10000) + 1);
@@ -680,8 +681,7 @@ Espo.define('views/record/detail', ['views/record/base', 'view-record-helper'], 
             this.navigateButtonsDisabled = this.options.navigateButtonsDisabled || this.navigateButtonsDisabled;
 
             this.setupActionItems();
-
-            this.setupFinal();
+            this.setupBeforeFinal();
 
             this.on('after:render', function () {
                 this.$detailButtonContainer = this.$el.find('.detail-button-container');
@@ -689,7 +689,7 @@ Espo.define('views/record/detail', ['views/record/base', 'view-record-helper'], 
             }, this);
         },
 
-        setupFinal: function () {
+        setupBeforeFinal: function () {
             this.manageAccess();
 
             this.attributes = this.model.getClonedAttributes();
@@ -715,6 +715,9 @@ Espo.define('views/record/detail', ['views/record/base', 'view-record-helper'], 
             this.initDynamicLogic();
 
             this.setupFieldLevelSecurity();
+        },
+
+        setupFinal: function () {
             this.build();
         },
 
@@ -1067,6 +1070,9 @@ Espo.define('views/record/detail', ['views/record/base', 'view-record-helper'], 
                         if ('customCode' in cellDefs) {
                             cell.customCode = cellDefs.customCode;
                         }
+                        if ('noLabel' in cellDefs) {
+                            cell.noLabel = cellDefs.noLabel;
+                        }
 
                         row.push(cell);
                     }
@@ -1142,17 +1148,12 @@ Espo.define('views/record/detail', ['views/record/base', 'view-record-helper'], 
                 model: this.model,
                 scope: this.scope,
                 el: el + ' .bottom',
-                notToRender: true,
                 readOnly: this.readOnly,
                 type: this.type,
                 inlineEditDisabled: this.inlineEditDisabled,
                 recordHelper: this.recordHelper,
                 recordViewObject: this
-            }, function (view) {
-                if (this.isRendered()) {
-                    view.render();
-                }
-            }, this, false);
+            });
         },
 
         build: function (callback) {
@@ -1165,9 +1166,7 @@ Espo.define('views/record/detail', ['views/record/base', 'view-record-helper'], 
             }
 
             if (!this.bottomDisabled && this.bottomView) {
-                this.once('after:render', function () {
-                    this.createBottomView();
-                }, this);
+                this.createBottomView();
             }
         },
 

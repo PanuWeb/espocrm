@@ -34,7 +34,7 @@ use Espo\Core\Utils\Util;
 
 class NextNumber extends \Espo\Core\Hooks\Base
 {
-    public static $order = 10;
+    public static $order = 9;
 
     protected function init()
     {
@@ -75,7 +75,10 @@ class NextNumber extends \Espo\Core\Hooks\Base
                     'fieldName' => $fieldName,
                     'entityType' => $entity->getEntityType()
                 ))->findOne();
-                if (!$nextNumber) continue;
+                if (!$nextNumber) {
+                    $this->getEntityManager()->getPdo()->query('UNLOCK TABLES');
+                    continue;
+                }
                 $entity->set($fieldName, $this->composeNumberAttribute($nextNumber));
 
                 $value = $nextNumber->get('value');

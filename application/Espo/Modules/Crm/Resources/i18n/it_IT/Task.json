@@ -3,16 +3,17 @@
     "name": "Nome",
     "parent": "Genitore",
     "status": "Stato",
-    "dateStart": "Data d'inizio",
+    "dateStart": "Data inizio",
     "dateEnd": "Data di scadenza",
-    "dateStartDate": "Data d'Inizio (tutto il giorno)",
-    "dateEndDate": "Data di Fine (tutto il giorno)",
+    "dateStartDate": "Data inizio (tutto il giorno)",
+    "dateEndDate": "Data termine (tutto il giorno)",
     "priority": "Priorita'",
     "description": "Descrizione",
     "isOverdue": "In ritardo",
     "account": "Account",
-    "dateCompleted": "Data completata",
-    "attachments": "Allegato"
+    "dateCompleted": "Completato in data",
+    "attachments": "Allegati",
+    "reminders": "Promemoria"
   },
   "links": {
     "attachments": "Allegato"
@@ -33,14 +34,14 @@
     }
   },
   "labels": {
-    "Create Task": "Crea Task",
+    "Create Task": "Crea Compito",
     "Complete": "Completo"
   },
   "presetFilters": {
     "actual": "Attuale",
     "completed": "Completato",
-    "todays": "Di Oggi",
-    "deferred": "Prorogare",
-    "overdue": "In RItardo"
+    "todays": "Di oggi",
+    "overdue": "Scaduto",
+    "deferred": "Prorogare"
   }
 }

@@ -9,12 +9,14 @@
     "application": "Applicazione",
     "queueItem": "Queue Item",
     "stringData": "String Data",
-    "stringAdditionalData": "String Additional Data"
+    "stringAdditionalData": "String Additional Data",
+    "isTest": "Is Test"
   },
   "links": {
     "queueItem": "Queue Item",
     "parent": "Genitore",
-    "object": "Object"
+    "object": "Object",
+    "campaign": "Campaign"
   },
   "options": {
     "action": {

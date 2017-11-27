@@ -104,24 +104,46 @@ class Email extends Record
         $fromAddress = strtolower($entity->get('from'));
 
         if (empty($fromAddress)) {
-            throw new Error();
+            throw new Error("Can't send with empty from address.");
         }
+
+        $inboundEmail = null;
+        $emailAccount = null;
 
         $smtpParams = null;
         if (in_array($fromAddress, $userAddressList)) {
             if ($primaryUserAddress === $fromAddress) {
                 $smtpParams = $this->getPreferences()->getSmtpParams();
+                if ($smtpParams) {
+                    if (array_key_exists('password', $smtpParams)) {
+                        $smtpParams['password'] = $this->getCrypt()->decrypt($smtpParams['password']);
+                    }
+                }
             }
             if (!$smtpParams) {
-                $smtpParams = $this->getSmtpParamsFromEmailAccount($entity->get('from'), $this->getUser()->id);
-            }
-
-            if ($smtpParams) {
-                if (array_key_exists('password', $smtpParams)) {
-                    $smtpParams['password'] = $this->getCrypt()->decrypt($smtpParams['password']);
+                $emailAccountService = $this->getServiceFactory()->create('EmailAccount');
+                $emailAccount = $emailAccountService->findAccountForUser($this->getUser(), $fromAddress);
+                if ($emailAccount) {
+                    $smtpParams = $emailAccountService->getSmtpParamsFromAccount($emailAccount);
+                    if ($smtpParams) {
+                        $emailSender->useSmtp($smtpParams);
+                    }
                 }
+            }
+            if ($smtpParams) {
                 $smtpParams['fromName'] = $this->getUser()->get('name');
                 $emailSender->useSmtp($smtpParams);
+            }
+        }
+
+        if (!$smtpParams) {
+            $inboundEmailService = $this->getServiceFactory()->create('InboundEmail');
+            $inboundEmail = $inboundEmailService->findSharedAccountForUser($this->getUser(), $fromAddress);
+            if ($inboundEmail) {
+                $smtpParams = $inboundEmailService->getSmtpParamsFromAccount($inboundEmail);
+                if ($smtpParams) {
+                    $emailSender->useSmtp($smtpParams);
+                }
             }
         }
 
@@ -163,18 +185,27 @@ class Email extends Record
             throw new Error($e->getMessage(), $e->getCode());
         }
 
-        if ($entity->get('from') && $message) {
-            $emailAccount = $this->getEntityManager()->getRepository('EmailAccount')->where(array(
-                'storeSentEmails' => true,
-                'emailAddress' => $entity->get('from'),
-                'assignedUserId' => $this->getUser()->id
-            ))->findOne();
-            if ($emailAccount) {
-                try {
-                    $emailAccountService = $this->getServiceFactory()->create('EmailAccount');
-                    $emailAccountService->storeSentMessage($emailAccount, $message);
-                } catch (\Exception $e) {
-                    $GLOBALS['log']->error("Could not store sent email (Email Account {$emailAccount->id}): " . $e->getMessage());
+        if ($message) {
+            if ($inboundEmail) {
+                $entity->addLinkMultipleId('inboundEmails', $inboundEmail->id);
+
+                if ($inboundEmail->get('storeSentEmails')) {
+                    try {
+                        $inboundEmailService = $this->getServiceFactory()->create('InboundEmail');
+                        $inboundEmailService->storeSentMessage($inboundEmail, $message);
+                    } catch (\Exception $e) {
+                        $GLOBALS['log']->error("Could not store sent email (Group Email Account {$inboundEmail->id}): " . $e->getMessage());
+                    }
+                }
+            } else if ($emailAccount) {
+                $entity->addLinkMultipleId('emailAccounts', $emailAccount->id);
+                if ($emailAccount->get('storeSentEmails')) {
+                    try {
+                        $emailAccountService = $this->getServiceFactory()->create('EmailAccount');
+                        $emailAccountService->storeSentMessage($emailAccount, $message);
+                    } catch (\Exception $e) {
+                        $GLOBALS['log']->error("Could not store sent email (Email Account {$emailAccount->id}): " . $e->getMessage());
+                    }
                 }
             }
         }
@@ -186,31 +217,6 @@ class Email extends Record
         $entity->set('isJustSent', true);
 
         $this->getEntityManager()->saveEntity($entity);
-    }
-
-    protected function getSmtpParamsFromEmailAccount($address, $userId)
-    {
-        $emailAccount = $this->getEntityManager()->getRepository('EmailAccount')->where([
-            'emailAddress' => $address,
-            'assignedUserId' => $userId,
-            'active' => true,
-            'useSmtp' => true
-        ])->findOne();
-
-        if (!$emailAccount) return;
-
-        $smtpParams = array();
-        $smtpParams['server'] = $emailAccount->get('smtpHost');
-        if ($smtpParams['server']) {
-            $smtpParams['port'] = $emailAccount->get('smtpPort');
-            $smtpParams['auth'] = $emailAccount->get('smtpAuth');
-            $smtpParams['security'] = $emailAccount->get('smtpSecurity');
-            $smtpParams['username'] = $emailAccount->get('smtpUsername');
-            $smtpParams['password'] = $emailAccount->get('smtpPassword');
-            return $smtpParams;
-        }
-
-        return;
     }
 
     protected function getStreamService()
@@ -544,7 +550,7 @@ class Email extends Record
         }
 
         $status = $entity->get('status');
-        if (in_array($entity->get('fromEmailAddressId'), $userEmailAdddressIdList)) {
+        if (in_array($entity->get('fromEmailAddressId'), $userEmailAdddressIdList) || $entity->get('createdById') === $this->getUser()->id) {
             $entity->loadLinkMultipleField('toEmailAddresses');
             $idList = $entity->get('toEmailAddressesIds');
             $names = $entity->get('toEmailAddressesNames');
@@ -608,7 +614,7 @@ class Email extends Record
         }
     }
 
-    public function loadNameHash(Entity $entity, array $fieldList = ['from', 'to', 'cc'])
+    public function loadNameHash(Entity $entity, array $fieldList = ['from', 'to', 'cc', 'bcc'])
     {
         $this->getEntityManager()->getRepository('Email')->loadNameHash($entity, $fieldList);
     }

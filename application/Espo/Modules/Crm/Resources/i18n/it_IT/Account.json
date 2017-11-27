@@ -12,22 +12,25 @@
     "type": "Tipo",
     "contactRole": "Titolo",
     "campaign": "Campagna",
-    "targetLists": "Liste di Destinazione",
-    "targetList": "Lista di Destinazione"
+    "targetLists": "Liste di destinazione",
+    "targetList": "Lista di destinazione",
+    "originalLead": "Iniziativa originale",
+    "contactIsInactive": "Inattivo"
   },
   "links": {
     "contacts": "Contatti",
     "opportunities": "Opportunita'",
     "cases": "Casi",
     "documents": "Documenti",
-    "meetingsPrimary": "Meeting (ampliato)",
+    "meetingsPrimary": "Riunioni (ampliato)",
     "callsPrimary": "Chiamate (ampliato)",
-    "tasksPrimary": "Task (ampliato)",
-    "emailsPrimary": "Email (ampliato)",
-    "targetLists": "Liste di Destinazione",
+    "tasksPrimary": "Compiti (ampliato)",
+    "emailsPrimary": "Emails (ampliato)",
+    "targetLists": "Liste di destinazione",
     "campaignLogRecords": "Log Campagna",
     "campaign": "Campagna",
-    "portalUsers": "Utenti portale"
+    "portalUsers": "Utenti portale",
+    "originalLead": "Iniziativa originale"
   },
   "options": {
     "type": {
@@ -66,15 +69,38 @@
       "Telecommunications": "Telecommunicazioni",
       "Television": "Televisione",
       "Transportation": "Trasporti",
-      "Venture Capital": "Capitale di rischio"
+      "Venture Capital": "Capitale di rischio",
+      "Aerospace": "Aerospaziale",
+      "Architecture": "Architettura",
+      "Construction": "Costruzioni",
+      "Defense": "Difesa",
+      "Creative": "Creatività",
+      "Culture": "Cultura",
+      "Consulting": "Consulenza",
+      "Electric Power": "Energia elettrica",
+      "Hospitality": "Ospitalità",
+      "Mass Media": "Mass media",
+      "Mining": "Miniere",
+      "Music": "Musica",
+      "Marketing": "Marketing",
+      "Petroleum": "Petrolio",
+      "Retail": "Vendita al dettaglio",
+      "Shipping": "Spedizioni",
+      "Support": "Supporto",
+      "Testing, Inspection & Certification": "Test, ispezione e certificazione",
+      "Wholesale": "Vendita all'ingrosso",
+      "Water": "Acqua",
+      "Travel": "Viaggio"
     }
   },
   "labels": {
     "Create Account": "Crea Account",
-    "Copy Billing": "Copia di Fatturazione"
+    "Copy Billing": "Copia di Fatturazione",
+    "Set Primary": "Imposta primario"
   },
   "presetFilters": {
     "customers": "Clienti",
-    "partners": "Partner"
+    "partners": "Partner",
+    "recentlyCreated": "Recentemente creato"
   }
 }

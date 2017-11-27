@@ -39,7 +39,7 @@ class EmailAccount extends Record
 {
     protected $internalAttributeList = ['password', 'smtpPassword'];
 
-    protected $readOnlyAttributeList= ['fetchData'];
+    protected $readOnlyAttributeList = ['fetchData'];
 
     const PORTION_LIMIT = 10;
 
@@ -310,6 +310,7 @@ class EmailAccount extends Record
 
                     if ($emailAccount->get('keepFetchedEmailsUnread')) {
                         if (is_array($flags) && empty($flags[Storage::FLAG_SEEN])) {
+                            unset($flags[Storage::FLAG_RECENT]);
                             $storage->setFlags($id, $flags);
                         }
                     }
@@ -382,5 +383,33 @@ class EmailAccount extends Record
         }
     }
 
-}
+    public function findAccountForUser(\Espo\Entities\User $user, $address)
+    {
+        $emailAccount = $this->getEntityManager()->getRepository('EmailAccount')->where([
+            'emailAddress' => $address,
+            'assignedUserId' => $user->id,
+            'active' => true,
+            'useSmtp' => true
+        ])->findOne();
 
+        return $emailAccount;
+    }
+
+    public function getSmtpParamsFromAccount(\Espo\Entities\EmailAccount $emailAccount)
+    {
+        $smtpParams = array();
+        $smtpParams['server'] = $emailAccount->get('smtpHost');
+        if ($smtpParams['server']) {
+            $smtpParams['port'] = $emailAccount->get('smtpPort');
+            $smtpParams['auth'] = $emailAccount->get('smtpAuth');
+            $smtpParams['security'] = $emailAccount->get('smtpSecurity');
+            $smtpParams['username'] = $emailAccount->get('smtpUsername');
+            $smtpParams['password'] = $emailAccount->get('smtpPassword');
+            if (array_key_exists('password', $smtpParams)) {
+                $smtpParams['password'] = $this->getCrypt()->decrypt($smtpParams['password']);
+            }
+            return $smtpParams;
+        }
+        return;
+    }
+}

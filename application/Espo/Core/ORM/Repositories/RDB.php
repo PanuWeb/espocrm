@@ -47,6 +47,10 @@ class RDB extends \Espo\ORM\Repositories\RDB implements Injectable
 
     private $restoreData = null;
 
+    protected $hooksDisabled = false;
+
+    protected $processFieldsAfterSaveDisabled = false;
+
     protected function addDependency($name)
     {
         $this->dependencies[] = $name;
@@ -172,7 +176,9 @@ class RDB extends \Espo\ORM\Repositories\RDB implements Injectable
     protected function beforeRemove(Entity $entity, array $options = array())
     {
         parent::beforeRemove($entity, $options);
-        $this->getEntityManager()->getHookManager()->process($this->entityType, 'beforeRemove', $entity, $options);
+        if (!$this->hooksDisabled) {
+            $this->getEntityManager()->getHookManager()->process($this->entityType, 'beforeRemove', $entity, $options);
+        }
 
         $nowString = date('Y-m-d H:i:s', time());
         if ($entity->hasAttribute('modifiedAt')) {
@@ -186,25 +192,25 @@ class RDB extends \Espo\ORM\Repositories\RDB implements Injectable
     protected function afterRemove(Entity $entity, array $options = array())
     {
         parent::afterRemove($entity, $options);
-        $this->getEntityManager()->getHookManager()->process($this->entityType, 'afterRemove', $entity, $options);
+        if (!$this->hooksDisabled) {
+            $this->getEntityManager()->getHookManager()->process($this->entityType, 'afterRemove', $entity, $options);
+        }
     }
 
     protected function afterMassRelate(Entity $entity, $relationName, array $params = array(), array $options = array())
     {
-        $hookData = array(
-            'relationName' => $relationName,
-            'relationParams' => $params
-        );
-
-        $this->getEntityManager()->getHookManager()->process($this->entityType, 'afterMassRelate', $entity, $options, $hookData);
+        if (!$this->hooksDisabled) {
+            $hookData = array(
+                'relationName' => $relationName,
+                'relationParams' => $params
+            );
+            $this->getEntityManager()->getHookManager()->process($this->entityType, 'afterMassRelate', $entity, $options, $hookData);
+        }
     }
 
     public function remove(Entity $entity, array $options = array())
     {
         $result = parent::remove($entity, $options);
-        if ($result) {
-            $this->getEntityManager()->getHookManager()->process($this->entityType, 'afterRemove', $entity, $options);
-        }
         return $result;
     }
 
@@ -214,12 +220,14 @@ class RDB extends \Espo\ORM\Repositories\RDB implements Injectable
 
         if ($foreign instanceof Entity) {
             $foreignEntity = $foreign;
-            $hookData = array(
-                'relationName' => $relationName,
-                'relationData' => $data,
-                'foreignEntity' => $foreignEntity
-            );
-            $this->getEntityManager()->getHookManager()->process($this->entityType, 'afterRelate', $entity, $options, $hookData);
+            if (!$this->hooksDisabled) {
+                $hookData = array(
+                    'relationName' => $relationName,
+                    'relationData' => $data,
+                    'foreignEntity' => $foreignEntity
+                );
+                $this->getEntityManager()->getHookManager()->process($this->entityType, 'afterRelate', $entity, $options, $hookData);
+            }
         }
     }
 
@@ -229,11 +237,13 @@ class RDB extends \Espo\ORM\Repositories\RDB implements Injectable
 
         if ($foreign instanceof Entity) {
             $foreignEntity = $foreign;
-            $hookData = array(
-                'relationName' => $relationName,
-                'foreignEntity' => $foreignEntity
-            );
-            $this->getEntityManager()->getHookManager()->process($this->entityType, 'afterUnrelate', $entity, $options, $hookData);
+            if (!$this->hooksDisabled) {
+                $hookData = array(
+                    'relationName' => $relationName,
+                    'foreignEntity' => $foreignEntity
+                );
+                $this->getEntityManager()->getHookManager()->process($this->entityType, 'afterUnrelate', $entity, $options, $hookData);
+            }
         }
     }
 
@@ -241,7 +251,9 @@ class RDB extends \Espo\ORM\Repositories\RDB implements Injectable
     {
         parent::beforeSave($entity, $options);
 
-        $this->getEntityManager()->getHookManager()->process($this->entityType, 'beforeSave', $entity, $options);
+        if (!$this->hooksDisabled) {
+            $this->getEntityManager()->getHookManager()->process($this->entityType, 'beforeSave', $entity, $options);
+        }
     }
 
     protected function afterSave(Entity $entity, array $options = array())
@@ -252,12 +264,16 @@ class RDB extends \Espo\ORM\Repositories\RDB implements Injectable
         }
         parent::afterSave($entity, $options);
 
-        $this->processEmailAddressSave($entity);
-        $this->processPhoneNumberSave($entity);
-        $this->processSpecifiedRelationsSave($entity);
-        $this->processFileFieldsSave($entity);
+        if (!$this->processFieldsAfterSaveDisabled) {
+            $this->processEmailAddressSave($entity);
+            $this->processPhoneNumberSave($entity);
+            $this->processSpecifiedRelationsSave($entity);
+            $this->processFileFieldsSave($entity);
+        }
 
-        $this->getEntityManager()->getHookManager()->process($this->entityType, 'afterSave', $entity, $options);
+        if (!$this->hooksDisabled) {
+            $this->getEntityManager()->getHookManager()->process($this->entityType, 'afterSave', $entity, $options);
+        }
     }
 
     public function save(Entity $entity, array $options = array())
@@ -279,14 +295,14 @@ class RDB extends \Espo\ORM\Repositories\RDB implements Injectable
                 $entity->set('modifiedAt', $nowString);
             }
             if ($entity->hasAttribute('createdById')) {
-                if (empty($options['import']) || !$entity->has('createdById')) {
+                if (empty($options['skipCreatedBy']) && (empty($options['import']) || !$entity->has('createdById'))) {
                     if ($this->getEntityManager()->getUser()) {
                         $entity->set('createdById', $this->getEntityManager()->getUser()->id);
                     }
                 }
             }
         } else {
-            if (empty($options['silent'])) {
+            if (empty($options['silent']) && empty($options['skipModifiedBy'])) {
                 if ($entity->hasAttribute('modifiedAt')) {
                     $entity->set('modifiedAt', $nowString);
                 }
@@ -323,6 +339,24 @@ class RDB extends \Espo\ORM\Repositories\RDB implements Injectable
                 'relatedType' => $entity->getEntityType()
             ));
             $this->getEntityManager()->saveEntity($attachment);
+        }
+
+        if (!$entity->isNew()) {
+
+            foreach ($this->getMetadata()->get(['entityDefs', $entity->getEntityType(), 'fields']) as $name => $defs) {
+                if (!empty($defs['type']) && in_array($defs['type'], ['file', 'image'])) {
+                    $attribute = $name . 'Id';
+                    if ($entity->isAttributeChanged($attribute)) {
+                        $previousAttachmentId = $entity->getFetched($attribute);
+                        if ($previousAttachmentId) {
+                            $attachment = $this->getEntityManager()->getEntity('Attachment', $previousAttachmentId);
+                            if ($attachment) {
+                                $this->getEntityManager()->removeEntity($attachment);
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -405,8 +439,16 @@ class RDB extends \Espo\ORM\Repositories\RDB implements Injectable
                             } else {
                                 if (!empty($columns)) {
                                     foreach ($columns as $columnName => $columnField) {
-                                        if (isset($columnData->$id)) {
-                                            if ($columnData->$id->$columnName !== $existingColumnsData->$id->$columnName) {
+                                        if (isset($columnData->$id) && is_object($columnData->$id)) {
+                                            if (
+                                                property_exists($columnData->$id, $columnName)
+                                                &&
+                                                (
+                                                    !property_exists($existingColumnsData->$id, $columnName)
+                                                    ||
+                                                    $columnData->$id->$columnName !== $existingColumnsData->$id->$columnName
+                                                )
+                                            ) {
                                                 $toUpdateIds[] = $id;
                                             }
                                         }

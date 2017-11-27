@@ -7,8 +7,8 @@
     "portalRoles": "Ruoli",
     "isActive": "Attivo",
     "isDefault": "Default",
-    "tabList": "Lista delle schede",
-    "quickCreateList": "Creazione rapida List",
+    "tabList": "Elenco schede",
+    "quickCreateList": "Elenco creazione rapida",
     "theme": "Tema",
     "language": "Lingua",
     "dashboardLayout": "Dashboard Layout",
@@ -32,6 +32,6 @@
     "Create Portal": "Crea Portale",
     "User Interface": "Interfaccia Utente",
     "General": "Generale",
-    "Settings": "Settaggi"
+    "Settings": "Impostazioni"
   }
 }

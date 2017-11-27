@@ -36,13 +36,17 @@ class Account extends \Espo\Services\Record
     protected $linkSelectParams = array(
         'contacts' => array(
             'additionalColumns' => array(
-                'role' => 'accountRole'
+                'role' => 'accountRole',
+                'isInactive' => 'accountIsInactive'
             )
         )
     );
 
     protected function getDuplicateWhereClause(Entity $entity, $data = array())
     {
+        if (!$entity->get('name')) {
+            return false;
+        }
         return array(
             'name' => $entity->get('name')
         );

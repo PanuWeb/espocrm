@@ -12,12 +12,16 @@
     "description": "Descrizione",
     "amountConverted": "Importo (convertito)",
     "amountWeightedConverted": "Importo Ponderato",
-    "campaign": "Campagna"
+    "campaign": "Campagna",
+    "originalLead": "Original Lead",
+    "amountCurrency": "Valuta dell'importo",
+    "contactRole": "Ruolo contatto"
   },
   "links": {
     "contacts": "Contatti",
     "documents": "Documentsi",
-    "campaign": "Campagna"
+    "campaign": "Campagna",
+    "originalLead": "Original Lead"
   },
   "options": {
     "stage": {

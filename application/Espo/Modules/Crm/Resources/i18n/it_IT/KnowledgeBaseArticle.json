@@ -4,7 +4,9 @@
     "Any": "Tutto",
     "Send in Email": "Spedisci via Email",
     "Move Up": "Sposta in Alto",
-    "Move Down": "Sposta in Basso"
+    "Move Down": "Sposta in Basso",
+    "Move to Top": "Sposta in alto",
+    "Move to Bottom": "Sposta in basso"
   },
   "fields": {
     "name": "Nome",
@@ -36,9 +38,10 @@
       "Article": "Articolo"
     }
   },
-  "tooltips": {
-  },
   "presetFilters": {
     "published": "Pubblicato"
+  },
+  "tooltips": {
+    "portals": "L'articolo sarà disponibile solo nei portali specificati."
   }
 }

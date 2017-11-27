@@ -2,33 +2,33 @@
   "labels": {
     "Fields": "Campos",
     "Relationships": "Relaciones",
-    "Schedule": "Programar",
-    "Log": "Registros",
-    "Formula": "Fórmula"
+    "Schedule": "Schedule",
+    "Log": "Log",
+    "Formula": "Formula"
   },
   "fields": {
     "name": "Nombre",
     "type": "Tipo",
     "labelSingular": "Etiqueta en Singular",
     "labelPlural": "Etiqueta en Plural",
-    "stream": "Historia",
+    "stream": "Actividad",
     "label": "Etiqueta",
-    "linkType": "Tipo de relación",
+    "linkType": "Tipo de enlace",
     "entityForeign": "Entidad Foránea",
-    "linkForeign": "Relación Foránea",
-    "link": "Relación",
+    "linkForeign": "Enlace Foráneo",
+    "link": "Enlace",
     "labelForeign": "Etiqueta Foránea",
     "sortBy": "Orden por defecto (campo)",
     "sortDirection": "Orden por defecto (dirección)",
     "relationName": "Nombre de la Tabla Intermedia",
     "linkMultipleField": "Enlaza Múltiples Campos",
     "linkMultipleFieldForeign": "Enlaza Múltiples Campos foráneos",
-    "disabled": "Deshabilitar",
-    "textFilterFields": "Los campos de filtro de texto",
-    "audited": "Auditado",
-    "auditedForeign": "Foráneo auditado",
-    "statusField": "Campo estado",
-    "beforeSaveCustomScript": "Antes de guardar la secuencia de comandos personalizada"
+    "disabled": "Desactivado",
+    "textFilterFields": "Campos de Filtros de Texto",
+    "audited": "Audited",
+    "auditedForeign": "Foreign Audited",
+    "statusField": "Status Field",
+    "beforeSaveCustomScript": "Before Save Custom Script"
   },
   "options": {
     "type": {
@@ -36,9 +36,9 @@
       "Base": "Base",
       "Person": "Persona",
       "CategoryTree": "Árbol de Categorías",
-      "Event": "Evento",
+      "Event": "Event",
       "BasePlus": "Base Plus",
-      "Company": "Empresa"
+      "Company": "Company"
     },
     "linkType": {
       "manyToMany": "Mucho-a-Muchos",
@@ -54,8 +54,8 @@
   },
   "messages": {
     "entityCreated": "La entidad ha sido creada",
-    "linkAlreadyExists": "Conflicto de nombres en la relación.",
-    "linkConflict": "Una relación con el mismo nombre ya existe."
+    "linkAlreadyExists": "Conflicto de nombres en el enlace.",
+    "linkConflict": "Un enlace con el mismo nombra ya existe."
   },
   "tooltips": {
     "statusField": "Las actualizaciones de este campo se registran en la Historia.",

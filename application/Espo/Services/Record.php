@@ -52,7 +52,6 @@ class Record extends \Espo\Core\Services\Base
         'serviceFactory',
         'fileManager',
         'selectManagerFactory',
-        'preferences',
         'fileStorageManager',
         'injectableFactory'
     );
@@ -144,11 +143,6 @@ class Record extends \Espo\Core\Services\Base
     protected function getFileManager()
     {
         return $this->injections['fileManager'];
-    }
-
-    protected function getPreferences()
-    {
-        return $this->injections['preferences'];
     }
 
     protected function getMetadata()
@@ -763,6 +757,9 @@ class Record extends \Espo\Core\Services\Base
 
         foreach ($collection as $e) {
             $this->loadAdditionalFieldsForList($e);
+            if (!empty($params['loadAdditionalFields'])) {
+                $this->loadAdditionalFields($e);
+            }
             $this->prepareEntityForOutput($e);
         }
 
@@ -833,6 +830,9 @@ class Record extends \Espo\Core\Services\Base
 
         foreach ($collection as $e) {
             $recordService->loadAdditionalFieldsForList($e);
+            if (!empty($params['loadAdditionalFields'])) {
+                $recordService->loadAdditionalFields($e);
+            }
             $recordService->prepareEntityForOutput($e);
         }
 
@@ -1387,10 +1387,6 @@ class Record extends \Espo\Core\Services\Base
         }
 
         foreach ($collection as $entity) {
-            if (is_null($attributeList)) {
-
-            }
-
             $this->loadAdditionalFieldsForExport($entity);
             if (method_exists($exportObj, 'loadAdditionalFields')) {
                 $exportObj->loadAdditionalFields($entity, $fieldList);
@@ -1410,8 +1406,17 @@ class Record extends \Espo\Core\Services\Base
 
         $mimeType = $this->getMetadata()->get(['app', 'export', 'formatDefs', $format, 'mimeType']);
         $fileExtension = $this->getMetadata()->get(['app', 'export', 'formatDefs', $format, 'fileExtension']);
-        $fileName = "Export_{$this->entityType}." . $fileExtension;
 
+        $fileName = null;
+        if (!empty($params['fileName'])) {
+            $fileName = trim($params['fileName']);
+        }
+
+        if (!empty($fileName)) {
+            $fileName = $fileName . '.' . $fileExtension;
+        } else {
+            $fileName = "Export_{$this->entityType}." . $fileExtension;
+        }
 
         $exportParams = array(
             'attributeList' => $attributeList,
@@ -1433,25 +1438,28 @@ class Record extends \Espo\Core\Services\Base
 
         if (!empty($attachment->id)) {
             $this->getInjection('fileStorageManager')->putContents($attachment, $contents);
-            // TODO cron job to remove file
             return $attachment->id;
         }
         throw new Error();
     }
 
-    protected function getAttributeFromEntityForExport(Entity $entity, $field)
+    protected function getAttributeFromEntityForExport(Entity $entity, $attribute)
     {
-        $methodName = 'getAttribute' . ucfirst($field). 'FromEntityForExport';
+        $methodName = 'getAttribute' . ucfirst($attribute). 'FromEntityForExport';
         if (method_exists($this, $methodName)) {
             return $this->$methodName($entity);
         }
 
         $defs = $entity->getAttributes();
-        if (!empty($defs[$field]) && !empty($defs[$field]['type'])) {
-            $type = $defs[$field]['type'];
+        if (!empty($defs[$attribute]) && !empty($defs[$attribute]['type'])) {
+            $type = $defs[$attribute]['type'];
             switch ($type) {
+                case 'jsonObject':
+                    $value = $entity->get($attribute);
+                    return \Espo\Core\Utils\Json::encode($value);
+                    break;
                 case 'jsonArray':
-                    $value = $entity->get($field);
+                    $value = $entity->get($attribute);
                     if (is_array($value)) {
                         return implode(',', $value);
                     } else {
@@ -1463,7 +1471,7 @@ class Record extends \Espo\Core\Services\Base
                     break;
             }
         }
-        return $entity->get($field);
+        return $entity->get($attribute);
     }
 
     public function prepareEntityForOutput(Entity $entity)
@@ -1686,9 +1694,19 @@ class Record extends \Espo\Core\Services\Base
 
         $fields = $this->getMetadata()->get(['entityDefs', $this->getEntityType(), 'fields'], array());
 
+        $fieldManager = new \Espo\Core\Utils\FieldManagerUtil($this->getMetadata());
+
         foreach ($fields as $field => $item) {
             if (empty($item['type'])) continue;
             $type = $item['type'];
+
+            if (!empty($item['duplicateIgnore'])) {
+                $attributeToIgnoreList = $fieldManager->getAttributeList($this->entityType, $field);
+                foreach ($attributeToIgnoreList as $attribute) {
+                    unset($attributes[$attribute]);
+                }
+                continue;
+            }
 
             if (in_array($type, ['file', 'image'])) {
                 $attachment = $entity->get($field);

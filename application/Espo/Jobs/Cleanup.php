@@ -45,6 +45,12 @@ class Cleanup extends \Espo\Core\Jobs\Base
 
     protected $cleanupAttachmentsPeriod = '1 month';
 
+    protected $cleanupAttachmentsFromPeriod = '3 months';
+
+    protected $cleanupRemindersPeriod = '15 days';
+
+    protected $cleanupBackupPeriod = '2 month';
+
     public function run()
     {
         $this->cleanupJobs();
@@ -55,6 +61,7 @@ class Cleanup extends \Espo\Core\Jobs\Base
         $this->cleanupNotifications();
         $this->cleanupActionHistory();
         $this->cleanupAuthToken();
+        $this->cleanupUpgradeBackups();
     }
 
     protected function cleanupJobs()
@@ -97,6 +104,19 @@ class Cleanup extends \Espo\Core\Jobs\Base
         $datetime->modify($period);
 
         $query = "DELETE FROM `action_history_record` WHERE DATE(created_at) < '" . $datetime->format('Y-m-d') . "'";
+
+        $pdo = $this->getEntityManager()->getPDO();
+        $sth = $pdo->prepare($query);
+        $sth->execute();
+    }
+
+    protected function cleanupReminders()
+    {
+        $period = '-' . $this->getConfig()->get('cleanupRemindersPeriod', $this->cleanupRemindersPeriod);
+        $datetime = new \DateTime();
+        $datetime->modify($period);
+
+        $query = "DELETE FROM `reminder` WHERE DATE(remind_at) < '" . $datetime->format('Y-m-d') . "'";
 
         $pdo = $this->getEntityManager()->getPDO();
         $sth = $pdo->prepare($query);
@@ -171,6 +191,57 @@ class Cleanup extends \Espo\Core\Jobs\Base
             }
         }
 
+        $fromPeriod = '-' . $this->getConfig()->get('cleanupAttachmentsFromPeriod', $this->cleanupAttachmentsFromPeriod);
+        $datetimeFrom = new \DateTime();
+        $datetimeFrom->modify($fromPeriod);
+
+        $scopeList = array_keys($this->getMetadata()->get(['scopes']));
+        foreach ($scopeList as $scope) {
+            if (!$this->getMetadata()->get(['scopes', $scope, 'entity'])) continue;
+            if (!$this->getMetadata()->get(['scopes', $scope, 'object']) && $scope !== 'Note') continue;
+            if (!$this->getMetadata()->get(['entityDefs', $scope, 'fields', 'modifiedAt'])) continue;
+
+            $hasAttachmentField = false;
+            if ($scope === 'Note') {
+                $hasAttachmentField = true;
+            }
+            if (!$hasAttachmentField) {
+                foreach ($this->getMetadata()->get(['entityDefs', $scope, 'fields']) as $field => $defs) {
+                    if (empty($defs['type'])) continue;
+                    if (in_array($defs['type'], ['file', 'image', 'attachmentMultiple'])) {
+                        $hasAttachmentField = true;
+                        break;
+                    }
+                }
+            }
+            if (!$hasAttachmentField) continue;
+
+            $deletedEntityList = $this->getEntityManager()->getRepository($scope)->where([
+                'deleted' => 1,
+                'modifiedAt<' => $datetime->format('Y-m-d H:i:s'),
+                'modifiedAt>' => $datetimeFrom->format('Y-m-d H:i:s'),
+
+            ])->find(['withDeleted' => true]);
+            foreach ($deletedEntityList as $deletedEntity) {
+                $attachmentToRemoveList = $this->getEntityManager()->getRepository('Attachment')->where(array(
+                    'OR' => array(
+                        array(
+                            'relatedType' => $scope,
+                            'relatedId' => $deletedEntity->id
+                        ),
+                        array(
+                            'parentType' => $scope,
+                            'parentId' => $deletedEntity->id
+                        )
+                    )
+                ))->find();
+
+                foreach ($attachmentToRemoveList as $attachmentToRemove) {
+                    $this->getEntityManager()->removeEntity($attachmentToRemove);
+                }
+            }
+        }
+
         $sql = "DELETE FROM attachment WHERE deleted = 1 AND created_at < ".$pdo->quote($datetime->format('Y-m-d H:i:s'));
         $sth = $pdo->query($sql);
     }
@@ -240,6 +311,26 @@ class Cleanup extends \Espo\Core\Jobs\Base
         while ($row = $sth->fetch(\PDO::FETCH_ASSOC)) {
             $id = $row['id'];
             $this->getEntityManager()->getRepository('Notification')->deleteFromDb($id);
+        }
+    }
+
+    protected function cleanupUpgradeBackups()
+    {
+        $path = 'data/.backup/upgrades';
+        $datetime = new \DateTime('-' . $this->cleanupBackupPeriod);
+
+        if (file_exists($path)) {
+            $fileManager = $this->getContainer()->get('fileManager');
+            $fileList = $fileManager->getFileList($path, false, '', false);
+
+            foreach ($fileList as $dirName) {
+                $dirPath = $path .  '/' . $dirName;
+
+                $info = new \SplFileInfo($dirPath);
+                if ($datetime->getTimestamp() > $info->getMTime()) {
+                    $fileManager->removeInDir($dirPath, true);
+                }
+            }
         }
     }
 }

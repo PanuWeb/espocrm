@@ -463,7 +463,6 @@ class Import extends \Espo\Services\Record
 
         $isNew = $entity->isNew();
 
-
         if (!empty($params['defaultValues'])) {
             if (is_object($params['defaultValues'])) {
                 $v = get_object_vars($params['defaultValues']);
@@ -504,37 +503,13 @@ class Import extends \Espo\Services\Record
                             $lastNameField = 'last' . ucfirst($field);
                             $firstNameField = 'first' . ucfirst($field);
 
-                            $firstName = '';
-                            $lastName = $value;
-                            switch ($params['personNameFormat']) {
-                                case 'f l':
-                                    $pos = strpos($value, ' ');
-                                    if ($pos) {
-                                        $firstName = trim(substr($value, 0, $pos));
-                                        $lastName = trim(substr($value, $pos + 1));
-                                    }
-                                    break;
-                                case 'l f':
-                                    $pos = strpos($value, ' ');
-                                    if ($pos) {
-                                        $lastName = trim(substr($value, 0, $pos));
-                                        $firstName = trim(substr($value, $pos + 1));
-                                    }
-                                    break;
-                                case 'l, f':
-                                    $pos = strpos($value, ',');
-                                    if ($pos) {
-                                        $lastName = trim(substr($value, 0, $pos));
-                                        $firstName = trim(substr($value, $pos + 1));
-                                    }
-                                    break;
-                            }
+                            $personName = $this->parsePersonName($value, $params['personNameFormat']);
 
                             if (!$entity->get($firstNameField)) {
-                                $entity->set($firstNameField, $firstName);
+                                $entity->set($firstNameField, $personName['firstName']);
                             }
                             if (!$entity->get($lastNameField)) {
-                                $entity->set($lastNameField, $lastName);
+                                $entity->set($lastNameField, $personName['lastName']);
                             }
                             continue;
                         }
@@ -569,20 +544,32 @@ class Import extends \Espo\Services\Record
             $defs = $fieldsDefs[$field];
             $type = $fieldsDefs[$field]['type'];
 
-            if (in_array($type, [Entity::FOREIGN, Entity::VARCHAR]) && !empty($defs['foreign']) && $defs['foreign'] === 'name') {
-                if ($entity->has($field)) {
-                    $relation = $defs['relation'];
-                    if ($field == $relation . 'Name' && !$entity->has($relation . 'Id') && array_key_exists($relation, $relDefs)) {
-                        if ($relDefs[$relation]['type'] == Entity::BELONGS_TO) {
-                            $name = $entity->get($field);
-                            $scope = $relDefs[$relation]['entity'];
-                            $found = $this->getEntityManager()->getRepository($scope)->where(array('name' => $name))->findOne();
+            if (in_array($type, [Entity::FOREIGN, Entity::VARCHAR]) && !empty($defs['foreign'])) {
+                $relatedEntityIsPerson = is_array($defs['foreign']) && in_array('firstName', $defs['foreign']) && in_array('lastName', $defs['foreign']);
 
-                            if ($found) {
-                                $entity->set($relation . 'Id', $found->id);
-                            } else {
-                                if (!in_array($scope, ['User', 'Team'])) {
-                                    // TODO create related record with name $name and relate
+                if ($defs['foreign'] === 'name' || $relatedEntityIsPerson) {
+                    if ($entity->has($field)) {
+                        $relation = $defs['relation'];
+                        if ($field == $relation . 'Name' && !$entity->has($relation . 'Id') && array_key_exists($relation, $relDefs)) {
+                            if ($relDefs[$relation]['type'] == Entity::BELONGS_TO) {
+                                $value = $entity->get($field);
+                                $scope = $relDefs[$relation]['entity'];
+
+                                if ($relatedEntityIsPerson) {
+                                    $where = $this->parsePersonName($value, $params['personNameFormat']);
+                                } else {
+                                    $where['name'] = $value;
+                                }
+
+                                $found = $this->getEntityManager()->getRepository($scope)->where($where)->findOne();
+
+                                if ($found) {
+                                    $entity->set($relation . 'Id', $found->id);
+                                    $entity->set($relation . 'Name', $found->get('name'));
+                                } else {
+                                    if (!in_array($scope, ['User', 'Team'])) {
+                                        // TODO create related record with name $name and relate
+                                    }
                                 }
                             }
                         }
@@ -592,8 +579,6 @@ class Import extends \Espo\Services\Record
         }
 
         $result = array();
-
-        $a = $entity->toArray();
 
         try {
             if ($isNew) {
@@ -628,7 +613,37 @@ class Import extends \Espo\Services\Record
         return $result;
     }
 
-    protected function parseValue(Entity $entity, $field, $value, $params = array())
+    protected function parsePersonName($value, $format)
+    {
+        $firstName = '';
+        $lastName = $value;
+        switch ($format) {
+            case 'f l':
+                $pos = strpos($value, ' ');
+                if ($pos) {
+                    $firstName = trim(substr($value, 0, $pos));
+                    $lastName = trim(substr($value, $pos + 1));
+                }
+                break;
+            case 'l f':
+                $pos = strpos($value, ' ');
+                if ($pos) {
+                    $lastName = trim(substr($value, 0, $pos));
+                    $firstName = trim(substr($value, $pos + 1));
+                }
+                break;
+            case 'l, f':
+                $pos = strpos($value, ',');
+                if ($pos) {
+                    $lastName = trim(substr($value, 0, $pos));
+                    $firstName = trim(substr($value, $pos + 1));
+                }
+                break;
+        }
+        return ['firstName' => $firstName, 'lastName' => $lastName];
+    }
+
+    protected function parseValue(Entity $entity, $attribute, $value, $params = array())
     {
         $decimalMark = '.';
         if (!empty($params['decimalMark'])) {
@@ -654,45 +669,55 @@ class Import extends \Espo\Services\Record
             }
         }
 
-        $fieldDefs = $entity->getFields();
+        $type = $entity->getAttributeType($attribute);
 
-        if (!empty($fieldDefs[$field])) {
-            $type = $fieldDefs[$field]['type'];
+        switch ($type) {
+            case Entity::DATE:
+                $dt = \DateTime::createFromFormat($dateFormat, $value);
+                if ($dt) {
+                    return $dt->format('Y-m-d');
+                }
+                break;
+            case Entity::DATETIME:
+                $timezone = new \DateTimeZone(isset($params['timezone']) ? $params['timezone'] : 'UTC');
+                $dt = \DateTime::createFromFormat($dateFormat . ' ' . $timeFormat, $value, $timezone);
+                if ($dt) {
+                    $dt->setTimezone(new \DateTimeZone('UTC'));
+                    return $dt->format('Y-m-d H:i:s');
+                }
+                break;
+            case Entity::FLOAT:
+                $currencyAttribute = $attribute . 'Currency';
+                if ($entity->hasAttribute($currencyAttribute)) {
+                    if (!$entity->has($currencyAttribute)) {
+                        $entity->set($currencyAttribute, $defaultCurrency);
+                    }
+                }
 
-            switch ($type) {
-                case Entity::DATE:
-                    $dt = \DateTime::createFromFormat($dateFormat, $value);
-                    if ($dt) {
-                        return $dt->format('Y-m-d');
-                    }
-                    break;
-                case Entity::DATETIME:
-                    $timezone = new \DateTimeZone(isset($params['timezone']) ? $params['timezone'] : 'UTC');
-                    $dt = \DateTime::createFromFormat($dateFormat . ' ' . $timeFormat, $value, $timezone);
-                    if ($dt) {
-                        $dt->setTimezone(new \DateTimeZone('UTC'));
-                        return $dt->format('Y-m-d H:i:s');
-                    }
-                    break;
-                case Entity::FLOAT:
-                    $currencyField = $field . 'Currency';
-                    if ($entity->hasField($currencyField)) {
-                        if (!$entity->has($currencyField)) {
-                            $entity->set($currencyField, $defaultCurrency);
-                        }
-                    }
+                $a = explode($decimalMark, $value);
+                $a[0] = preg_replace('/[^A-Za-z0-9\-]/', '', $a[0]);
 
-                    $a = explode($decimalMark, $value);
-                    $a[0] = preg_replace('/[^A-Za-z0-9\-]/', '', $a[0]);
-
-                    if (count($a) > 1) {
-                        return $a[0] . '.' . $a[1];
-                    } else {
-                        return $a[0];
-                    }
-                    break;
-            }
+                if (count($a) > 1) {
+                    return $a[0] . '.' . $a[1];
+                } else {
+                    return $a[0];
+                }
+                break;
+            case Entity::JSON_OBJECT:
+                $value = \Espo\Core\Utils\Json::decode($value);
+                return $value;
+            case Entity::JSON_ARRAY:
+                if (!is_string($value)) return;
+                if (!strlen($value)) return;
+                if ($value[0] === '[') {
+                    $value = \Espo\Core\Utils\Json::decode($value);
+                    return $value;
+                } else {
+                    $value = explode(',', $value);
+                    return $value;
+                }
         }
+
         return $value;
     }
 

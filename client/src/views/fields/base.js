@@ -184,6 +184,7 @@ Espo.define('views/fields/base', 'view', function (Dep) {
                 data.searchType = this.getSearchType();
                 data.searchTypeList = this.getSearchTypeList();
             }
+
             return data;
         },
 
@@ -261,13 +262,13 @@ Espo.define('views/fields/base', 'view', function (Dep) {
 
             this.on('after:render', function () {
                 if (this.mode === 'edit') {
-                    if (this.isRequired()) {
+                    if (this.hasRequiredMarker()) {
                         this.showRequiredSign();
                     } else {
                         this.hideRequiredSign();
                     }
                 } else {
-                    if (this.isRequired()) {
+                    if (!this.hasRequiredMarker()) {
                         this.hideRequiredSign();
                     }
                 }
@@ -536,7 +537,7 @@ Espo.define('views/fields/base', 'view', function (Dep) {
                 placement: 'bottom',
                 container: 'body',
                 content: message,
-                trigger: 'manual',
+                trigger: 'manual'
             }).popover('show');
 
             $el.closest('.field').one('mousedown click', function () {
@@ -577,6 +578,10 @@ Espo.define('views/fields/base', 'view', function (Dep) {
                     return true;
                 }
             }
+        },
+
+        hasRequiredMarker: function () {
+            return this.isRequired();
         },
 
         fetchToModel: function () {

@@ -36,7 +36,7 @@ use \Espo\Entities\User;
 
 use \Espo\Core\Utils\Config;
 use \Espo\Core\Utils\Metadata;
-use \Espo\Core\Utils\FieldManager;
+use \Espo\Core\Utils\FieldManagerUtil;
 use \Espo\Core\Utils\File\Manager as FileManager;
 
 class Table
@@ -59,13 +59,9 @@ class Table
 
     protected $fieldLevelList = ['yes', 'no'];
 
-    protected $valuePermissionList = ['assignmentPermission', 'userPermission', 'portalPermission'];
+    protected $valuePermissionHighestLevels = array();
 
-    protected $valuePrtmissionHighestLevels = array(
-        'assignmentPermission' => 'all',
-        'userPermission' => 'all',
-        'portalPermission' => 'yes'
-    );
+    protected $valuePermissionList = [];
 
     private $fileManager;
 
@@ -77,13 +73,17 @@ class Table
 
     protected $forbiddenFieldsCache = array();
 
-    public function __construct(User $user, Config $config = null, FileManager $fileManager = null, Metadata $metadata = null, FieldManager $fieldManager = null)
+    protected $isStrictMode = false;
+
+    public function __construct(User $user, Config $config = null, FileManager $fileManager = null, Metadata $metadata = null, FieldManagerUtil $fieldManager = null)
     {
         $this->data = (object) [
             'table' => (object) [],
             'fieldTable' => (object) [],
             'fieldTableQuickAccess' => (object) [],
         ];
+
+        $this->isStrictMode = $config->get('aclStrictMode', false);
 
         $this->user = $user;
 
@@ -100,7 +100,8 @@ class Table
         if ($fileManager) {
             $this->fileManager = $fileManager;
         }
-        $this->valuePermissionList = $this->metadata->get('app.' . $this->type . '.defs.valuePermissionList', $this->valuePermissionList);
+        $this->valuePermissionList = $this->metadata->get(['app', $this->type, 'valuePermissionList'], []);
+        $this->valuePermissionHighestLevels = $this->metadata->get(['app', $this->type, 'valuePermissionHighestLevels'], array());
 
         $this->initCacheFilePath();
 
@@ -133,11 +134,6 @@ class Table
     protected function getFieldManager()
     {
         return $this->fieldManager;
-    }
-
-    protected function getConfig()
-    {
-        return $this->config;
     }
 
     public function getMap()
@@ -242,8 +238,12 @@ class Table
         $this->fillFieldTableQuickAccess();
 
         if (!$this->getUser()->isAdmin()) {
+            $permissionsDefaultsGroupName = 'permissionsDefaults';
+            if ($this->isStrictMode) {
+                $permissionsDefaultsGroupName = 'permissionsStrictDefaults';
+            }
             foreach ($this->valuePermissionList as $permission) {
-                $this->data->$permission = $this->mergeValueList($valuePermissionLists->$permission, $this->metadata->get('app.'.$this->type.'.default.' . $permission, 'yes'));
+                $this->data->$permission = $this->mergeValueList($valuePermissionLists->$permission, $this->metadata->get(['app', $this->type, $permissionsDefaultsGroupName, $permission, 'yes']));
                 if ($this->metadata->get('app.'.$this->type.'.mandatory.' . $permission)) {
                     $this->data->$permission = $this->metadata->get('app.'.$this->type.'.mandatory.' . $permission);
                 }
@@ -251,8 +251,8 @@ class Table
 
         } else {
             foreach ($this->valuePermissionList as $permission) {
-                if (isset($this->valuePrtmissionHighestLevels[$permission])) {
-                    $this->data->$permission = $this->valuePrtmissionHighestLevels[$permission];
+                if (isset($this->valuePermissionHighestLevels[$permission])) {
+                    $this->data->$permission = $this->valuePermissionHighestLevels[$permission];
                     continue;
                 }
                 $this->data->$permission = 'all';
@@ -454,7 +454,11 @@ class Table
                     $aclType = $this->defaultAclType;
                 }
                 if (!empty($aclType)) {
-                    $defaultValue = $this->metadata->get('app.'.$this->type.'.scopeLevelTypesDefaults.' . $aclType, $this->metadata->get('app.'.$this->type.'.scopeLevelTypesDefaults.record'));
+                    $paramDefaultsName = 'scopeLevelTypesDefaults';
+                    if ($this->isStrictMode) {
+                        $paramDefaultsName = 'scopeLevelTypesStrictDefaults';
+                    }
+                    $defaultValue = $this->metadata->get(['app', $this->type, $paramDefaultsName, $aclType], $this->metadata->get(['app', $this->type, $paramDefaultsName, 'record']));
                     if (is_array($defaultValue)) {
                         $defaultValue = (object) $defaultValue;
                     }

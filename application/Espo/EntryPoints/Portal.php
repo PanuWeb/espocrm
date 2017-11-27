@@ -44,7 +44,14 @@ class Portal extends \Espo\Core\EntryPoints\Base
         } else if (!empty($data['id'])) {
             $id = $data['id'];
         } else {
-            $id = explode('/', $_SERVER['REQUEST_URI'])[count(explode('/', $_SERVER['SCRIPT_NAME'])) - 1];
+            $url = $_SERVER['REQUEST_URI'];
+            $id = explode('/', $url)[count(explode('/', $_SERVER['SCRIPT_NAME'])) - 1];
+
+            if (!isset($id)) {
+                $url = $_SERVER['REDIRECT_URL'];
+                $id = explode('/', $url)[count(explode('/', $_SERVER['SCRIPT_NAME'])) - 1];
+            }
+
             if (!$id) {
                 $id = $this->getConfig()->get('defaultPortalId');
             }

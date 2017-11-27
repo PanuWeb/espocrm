@@ -33,19 +33,45 @@ Espo.define('views/admin/index', 'view', function (Dep) {
 
         data: function () {
             return {
-                links: this.links,
+                panelDataList: this.panelDataList,
                 iframeUrl: this.iframeUrl
             };
         },
 
         setup: function () {
-            this.links = this.getMetadata().get('app.adminPanel');
-            this.iframeUrl = this.getConfig().get('adminPanelIframeUrl') || '//espocrm.com/news';
+            this.panelDataList = [];
+
+            var panels = this.getMetadata().get('app.adminPanel') || {};
+            for (var name in panels) {
+                var panelItem = Espo.Utils.cloneDeep(panels[name]);
+                panelItem.name = name;
+                panelItem.itemList = panelItem.itemList || [];
+                if (panelItem.items) {
+                    panelItem.items.forEach(function (item) {
+                        panelItem.itemList.push(item);
+                    }, this);
+                }
+                this.panelDataList.push(panelItem);
+            }
+
+            this.panelDataList.sort(function (v1, v2) {
+                if (!('order' in v1) && ('order' in v2)) return true;
+                if (!('order' in v2)) return false;
+                return v1.order > v2.order;
+            }.bind(this));
+
+            this.iframeUrl = this.getConfig().get('adminPanelIframeUrl') || 'https://s.espocrm.com/';
+
+            if (!this.getConfig().get('adminNotificationsDisabled')) {
+                this.createView('notificationsPanel', 'views/admin/panels/notifications', {
+                    el: this.getSelector() + ' .notifications-panel-container'
+                });
+            }
         },
 
         updatePageTitle: function () {
             this.setPageTitle(this.getLanguage().translate('Administration'));
-        },
+        }
 
     });
 });

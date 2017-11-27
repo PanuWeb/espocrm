@@ -1,6 +1,5 @@
 {
   "fields": {
-    "name": "Nome (Soggetto)",
     "parent": "Genitore",
     "status": "Stato",
     "dateSent": "Data invio",
@@ -17,8 +16,8 @@
     "selectTemplate": "Seleziona Modello",
     "fromEmailAddress": "Indirizzo mittente",
     "toEmailAddresses": "Indirizzo destinatario",
-    "emailAddress": "Indirizzo Email",
-    "deliveryDate": "Data di Consegna",
+    "emailAddress": "Indirizzo email",
+    "deliveryDate": "Data di consegna",
     "account": "Account",
     "users": "Utenti",
     "replied": "Risposta",
@@ -26,20 +25,25 @@
     "isRead": "Letto",
     "isNotRead": "Non letto",
     "isImportant": "Importante",
-    "isReplied": "Risposto",
-    "isNotReplied": "Non Risposto",
     "isUsers": "Utente",
     "inTrash": "Nel Cestino",
-    "sentBy": "Inviato da (Utente)",
+    "name": "Nome (Soggetto)",
+    "isReplied": "Risposto",
+    "isNotReplied": "Non Risposto",
     "folder": "Cartella",
     "inboundEmails": "Gruppo di Account",
-    "emailAccounts": "Account Personale"
+    "emailAccounts": "Account Personale",
+    "hasAttachment": "Ha allegato",
+    "sentBy": "Inviato da",
+    "assignedUsers": "Utenti assegnati"
   },
   "links": {
     "replied": "Risposto",
     "replies": "Risposte",
     "inboundEmails": "Gruppi di Account",
-    "emailAccounts": "Account Personali"
+    "emailAccounts": "Account Personali",
+    "assignedUsers": "Utenti assegnati",
+    "sentBy": "Inviato da"
   },
   "options": {
     "status": {
@@ -52,20 +56,20 @@
     }
   },
   "labels": {
-    "Create Email": "Archivio Email",
-    "Archive Email": "Archivio Email",
+    "Create Email": "Archivio email",
+    "Archive Email": "Archivio email",
     "Compose": "Comporre",
     "Reply": "Rispondi",
     "Reply to All": "Rispondi a tutti",
     "Forward": "Inoltrare",
     "Original message": "Messaggio originale",
     "Forwarded message": "Messaggio inoltrato",
-    "Email Accounts": "Email Accounts Personali",
-    "Inbound Emails": "Grouppi di Accounts Email ",
-    "Email Templates": "Modelli di Emali",
-    "Send Test Email": "Invio Email di Prova",
+    "Email Accounts": "Accounts email personali",
+    "Inbound Emails": "Gruppo di accounts email",
+    "Email Templates": "Modelli email",
+    "Send Test Email": "Invia mail di prova",
     "Send": "Invio",
-    "Email Address": "Indirizzo Email",
+    "Email Address": "Indirizzo email",
     "Mark Read": "Contrassegna come letto",
     "Sending...": "Invio...",
     "Save Draft": "Salva Bozza",
@@ -81,7 +85,7 @@
   },
   "messages": {
     "noSmtpSetup": "Nessun setup per l'SMTP. {link}.",
-    "testEmailSent": "L'e-mail di prova è stata inviata",
+    "testEmailSent": "L'email di prova è stata inviata",
     "emailSent": "L'email è stata inviata",
     "savedAsDraft": "Salvato come bozza."
   },
@@ -99,6 +103,7 @@
     "markAsImportant": "Contrassegna come Importante",
     "markAsNotImportant": "Deseleziona come Importante",
     "moveToTrash": "Sposta nel Cestino",
-    "moveToFolder": "Sposta nella Cartella"
+    "moveToFolder": "Sposta nella Cartella",
+    "retrieveFromTrash": "Recupera dal Cestino"
   }
 }

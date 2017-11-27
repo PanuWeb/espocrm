@@ -36,20 +36,20 @@ Espo.define('crm:views/task/detail', 'views/detail', function (Dep) {
                 if (this.getAcl().checkModel(this.model, 'edit')) {
                     this.menu.buttons.push({
                         'label': 'Complete',
-                        'action': 'setCompleted',
+                        'action': 'setCompletedMain',
                         'iconHtml': '<span class="glyphicon glyphicon-ok"></span>',
                         'acl': 'edit',
                     });
                 }
-                this.listenToOnce(this.model, 'sync', function () {
+                this.listenTo(this.model, 'sync', function () {
                     if (~['Completed', 'Canceled'].indexOf(this.model.get('status'))) {
-                        this.$el.find('[data-action="setCompleted"]').remove();
+                        this.$el.find('[data-action="setCompletedMain"]').remove();
                     }
                 }, this);
             }
         },
 
-        actionSetCompleted: function (data) {
+        actionSetCompletedMain: function (data) {
             var id = data.id;
 
             this.model.save({
@@ -58,7 +58,7 @@ Espo.define('crm:views/task/detail', 'views/detail', function (Dep) {
                 patch: true,
                 success: function () {
                     Espo.Ui.success(this.translate('Saved'));
-                    this.$el.find('[data-action="setCompleted"]').remove();
+                    this.$el.find('[data-action="setCompletedMain"]').remove();
                 }.bind(this),
             });
 

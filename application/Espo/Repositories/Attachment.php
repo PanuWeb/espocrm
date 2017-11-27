@@ -36,13 +36,13 @@ class Attachment extends \Espo\Core\ORM\Repositories\RDB
     protected function init()
     {
         parent::init();
-        $this->addDependency('fileStorageManager');
+        $this->addDependency('container');
         $this->addDependency('config');
     }
 
     protected function getFileStorageManager()
     {
-        return $this->getInjection('fileStorageManager');
+        return $this->getInjection('container')->get('fileStorageManager');
     }
 
     protected function getConfig()
@@ -61,7 +61,7 @@ class Attachment extends \Espo\Core\ORM\Repositories\RDB
 
         if ($entity->isNew()) {
             if (!$entity->has('size') && $entity->has('contents')) {
-                $entity->set('size', mb_strlen($entity->has('contents')));
+                $entity->set('size', mb_strlen($entity->get('contents')));
             }
         }
     }

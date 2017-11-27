@@ -63,7 +63,9 @@ return array (
     'smtpUsername' => '',
     'smtpPassword' => '',
     'languageList' => [
+        'en_GB',
         'en_US',
+        'es_MX',
         'cs_CZ',
         'da_DK',
         'de_DE',
@@ -74,6 +76,7 @@ return array (
         'nb_NO',
         'nl_NL',
         'tr_TR',
+        'sr_RS',
         'ro_RO',
         'ru_RU',
         'pl_PL',
@@ -101,6 +104,7 @@ return array (
     'tabList' => ["Account", "Contact", "Lead", "Opportunity", "Case", "Email", "Calendar", "Meeting", "Call", "Task", "_delimiter_", "Document", "Campaign", "KnowledgeBaseArticle", "Stream", "User"],
     'quickCreateList' => ["Account", "Contact", "Lead", "Opportunity", "Meeting", "Call", "Task", "Case", "Email"],
     'exportDisabled' => false,
+    'adminNotifications' => true,
     'assignmentEmailNotifications' => false,
     'assignmentEmailNotificationsEntityList' => ['Lead', 'Opportunity', 'Task', 'Case'],
     'assignmentNotificationsEntityList' => ['Meeting', 'Call', 'Task', 'Email'],
@@ -160,6 +164,11 @@ return array (
     'cleanupJobPeriod' => '1 month',
     'cleanupActionHistoryPeriod' => '15 days',
     'cleanupAuthTokenPeriod' => '1 month',
+    'currencyFormat' => 1,
+    'currencyDecimalPlaces' => null,
+    'aclStrictMode' => false,
+    'aclAllowDeleteCreated' => false,
+    'inlineAttachmentUploadMaxSize' => 20,
     'isInstalled' => false
 );
 

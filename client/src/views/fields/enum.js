@@ -34,6 +34,8 @@ Espo.define('views/fields/enum', ['views/fields/base', 'lib!Selectize'], functio
 
         listTemplate: 'fields/enum/list',
 
+        listLinkTemplate: 'fields/enum/list-link',
+
         detailTemplate: 'fields/enum/detail',
 
         editTemplate: 'fields/enum/edit',
@@ -79,26 +81,33 @@ Espo.define('views/fields/enum', ['views/fields/base', 'lib!Selectize'], functio
             }
 
             if (this.params.translation) {
+                var translationObj;
                 var data = this.getLanguage().data;
                 var arr = this.params.translation.split('.');
                 var pointer = this.getLanguage().data;
                 arr.forEach(function (key) {
                     if (key in pointer) {
                         pointer = pointer[key];
-                        t = pointer;
+                        translationObj = pointer;
                     }
                 }, this);
 
                 this.translatedOptions = null;
                 var translatedOptions = {};
                 if (this.params.options) {
-                    this.params.options.forEach(function (o) {
-                        if (typeof t === 'object' && o in t) {
-                            translatedOptions[o] = t[o];
+                    this.params.options.forEach(function (item) {
+                        if (typeof translationObj === 'object' && item in translationObj) {
+                            translatedOptions[item] = translationObj[item];
                         } else {
-                            translatedOptions[o] = o;
+                            translatedOptions[item] = item;
                         }
                     }, this);
+                    var value = this.model.get(this.name);
+                    if ((value || value === '') && !(value in translatedOptions)) {
+                        if (typeof translationObj === 'object' && value in translationObj) {
+                            translatedOptions[value] = translationObj[value];
+                        }
+                    }
                     this.translatedOptions = translatedOptions;
                 }
             }
@@ -223,6 +232,8 @@ Espo.define('views/fields/enum', ['views/fields/base', 'lib!Selectize'], functio
                         };
                     }
                 });
+
+                this.$el.find('.selectize-dropdown-content').addClass('small');
             }
         },
 
@@ -243,6 +254,10 @@ Espo.define('views/fields/enum', ['views/fields/base', 'lib!Selectize'], functio
             return data;
         },
 
+        parseItemForSearch: function (item) {
+            return item;
+        },
+
         fetchSearch: function () {
             var type = this.$el.find('[name="'+this.name+'-type"]').val();
 
@@ -251,7 +266,9 @@ Espo.define('views/fields/enum', ['views/fields/base', 'lib!Selectize'], functio
                 list = [];
             }
 
-
+            list.forEach(function (item, i) {
+                list[i] = this.parseItemForSearch(item);
+            }, this);
 
             if (type === 'anyOf') {
                 if (list.length === 0) {

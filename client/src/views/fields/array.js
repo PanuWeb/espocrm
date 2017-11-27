@@ -87,7 +87,7 @@ Espo.define('views/fields/array', ['views/fields/base', 'lib!Selectize'], functi
             this.noEmptyString = this.params.noEmptyString;
 
             this.listenTo(this.model, 'change:' + this.name, function () {
-                this.selected = Espo.Utils.clone(this.model.get(this.name));
+                this.selected = Espo.Utils.clone(this.model.get(this.name)) || [];
             }, this);
 
             this.selected = Espo.Utils.clone(this.model.get(this.name) || []);
@@ -248,6 +248,8 @@ Espo.define('views/fields/array', ['views/fields/base', 'lib!Selectize'], functi
                     };
                 }
             });
+
+            this.$el.find('.selectize-dropdown-content').addClass('small');
         },
 
         fetchFromDom: function () {
@@ -261,12 +263,19 @@ Espo.define('views/fields/array', ['views/fields/base', 'lib!Selectize'], functi
 
         getValueForDisplay: function () {
             return this.selected.map(function (item) {
+                var label = null;
                 if (this.translatedOptions != null) {
                     if (item in this.translatedOptions) {
-                        return this.getHelper().stripTags(this.translatedOptions[item]);
+                        label = this.getHelper().stripTags(this.translatedOptions[item]);
                     }
                 }
-                return this.getHelper().stripTags(item);
+                if (label === null) {
+                    label = this.getHelper().stripTags(item);
+                }
+                if (label === '') {
+                    label = this.translate('None');
+                }
+                return label;
             }, this).join(', ');
         },
 
@@ -288,6 +297,7 @@ Espo.define('views/fields/array', ['views/fields/base', 'lib!Selectize'], functi
             var label = valueSanitized;
             if (this.translatedOptions) {
                 label = ((value in this.translatedOptions) ? this.translatedOptions[value] : label);
+                label = label.toString();
                 label = this.getHelper().stripTags(label);
                 label = label.replace(/"/g, '&quot;');
             }
@@ -337,7 +347,7 @@ Espo.define('views/fields/array', ['views/fields/base', 'lib!Selectize'], functi
                 arr.push({
                     type: 'like',
                     field: field,
-                    value: "%" + value.replace(/\//, '\\\\/' ) + "%"
+                    value: "%" + value.replace(/\//g, '\\\\/' ) + "%"
                 });
                 arrFront.push(value);
             });

@@ -7,20 +7,21 @@
     "probability": "Probabilidad de ganar (%)",
     "leadSource": "Toma de Contacto del Posible Cliente",
     "doNotCall": "No Llamar",
-    "closeDate": "Fecha esperada de cierre",
+    "closeDate": "Fecha de cierre",
     "contacts": "Contactos",
     "description": "Descripción",
     "amountConverted": "Cantidad (convertido)",
     "amountWeightedConverted": "Cantidad Ponderada",
     "campaign": "Campaña",
-    "originalLead": "Posible Cliente Original",
-    "amountCurrency": "Monto de la Moneda"
+    "originalLead": "Pista original",
+    "amountCurrency": "Amount Currency",
+    "contactRole": "Contact Role"
   },
   "links": {
     "contacts": "Contactos",
     "documents": "Documentos",
     "campaign": "Campaña",
-    "originalLead": "Posible Cliente Original"
+    "originalLead": "Pista original"
   },
   "options": {
     "stage": {
@@ -42,6 +43,6 @@
   "presetFilters": {
     "open": "Abiertos",
     "won": "Ganados",
-    "lost": "Perdidos"
+    "lost": "Perdido"
   }
 }

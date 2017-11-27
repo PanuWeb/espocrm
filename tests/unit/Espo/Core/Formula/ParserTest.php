@@ -80,6 +80,26 @@ class ParserTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($expected, $actual);
     }
 
+    function testNotEquals()
+    {
+        $expression = "isActive != false";
+        $actual = $this->parser->parse($expression);
+        $expected = (object) [
+            'type' => 'comparison\\notEquals',
+            'value' => [
+                (object) [
+                    'type' => 'attribute',
+                    'value' => 'isActive'
+                ],
+                (object) [
+                    'type' => 'value',
+                    'value' => false
+                ]
+            ]
+        ];
+        $this->assertEquals($expected, $actual);
+    }
+
     function testSplit()
     {
         $expression = "name == 'test';\nvalue > 0.5\n;";
@@ -704,5 +724,63 @@ class ParserTest extends \PHPUnit_Framework_TestCase
         }
 
         return $result;
+    }
+
+    function testCommaInString()
+    {
+        $expression = "
+            string\concatenate(
+                lastName, ', ', firstName
+            )
+        ";
+        $actual = $this->parser->parse($expression);
+
+        $expected = (object) [
+            'type' => 'string\concatenate',
+            'value' => [
+                (object) [
+                    'type' => 'attribute',
+                    'value' => 'lastName'
+                ],
+                (object) [
+                    'type' => 'value',
+                    'value' => ', '
+                ],
+                (object) [
+                    'type' => 'attribute',
+                    'value' => 'firstName'
+                ]
+            ]
+        ];
+        $this->assertEquals($expected, $actual);
+    }
+
+    function testBracesInString()
+    {
+        $expression = "
+            string\concatenate(
+                lastName, '(,)(\"test\")', firstName
+            )
+        ";
+        $actual = $this->parser->parse($expression);
+
+        $expected = (object) [
+            'type' => 'string\concatenate',
+            'value' => [
+                (object) [
+                    'type' => 'attribute',
+                    'value' => 'lastName'
+                ],
+                (object) [
+                    'type' => 'value',
+                    'value' => '(,)("test")'
+                ],
+                (object) [
+                    'type' => 'attribute',
+                    'value' => 'firstName'
+                ]
+            ]
+        ];
+        $this->assertEquals($expected, $actual);
     }
 }

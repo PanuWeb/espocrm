@@ -80,10 +80,31 @@
         "scopeLevel": {
         },
         "fieldLevel": {
-        },
+        }
+    },
+    "valuePermissionList": [
+        "assignmentPermission",
+        "userPermission",
+        "portalPermission",
+        "groupEmailAccountPermission"
+    ],
+    "valuePermissionHighestLevels": {
         "assignmentPermission": "all",
         "userPermission": "all",
-        "portalPermission": "no"
+        "portalPermission": "yes",
+        "groupEmailAccountPermission": "all"
+    },
+    "permissionsDefaults": {
+        "assignmentPermission": "all",
+        "userPermission": "all",
+        "portalPermission": "no",
+        "groupEmailAccountPermission": "no"
+    },
+    "permissionsStrictDefaults": {
+        "assignmentPermission": "no",
+        "userPermission": "no",
+        "portalPermission": "no",
+        "groupEmailAccountPermission": "no"
     },
     "scopeLevelTypesDefaults": {
         "boolean": true,
@@ -94,5 +115,9 @@
             "delete": "no",
             "create": "yes"
         }
+    },
+    "scopeLevelTypesStrictDefaults": {
+        "boolean": false,
+        "record": false
     }
 }

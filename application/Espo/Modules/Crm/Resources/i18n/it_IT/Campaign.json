@@ -4,10 +4,10 @@
     "description": "Descrizione",
     "status": "Stato",
     "type": "Tipo",
-    "startDate": "Data d'Inizio",
-    "endDate": "Data di Fine",
-    "targetLists": "Liste di Destinazione",
-    "excludingTargetLists": "Escludi data di Destinazione",
+    "startDate": "Data inizio",
+    "endDate": "Data termine",
+    "targetLists": "Liste di destinazione",
+    "excludingTargetLists": "Esclusioni da liste di destinazione",
     "sentCount": "Inviato",
     "openedCount": "Aperto",
     "clickedCount": "Cliccato",
@@ -22,8 +22,8 @@
     "budgetConverted": "Budget (convertito)"
   },
   "links": {
-    "targetLists": "Liste di Destinazione",
-    "excludingTargetLists": "Escludi Liste di Destinazione",
+    "targetLists": "Liste di destinazione",
+    "excludingTargetLists": "Esclusioni da liste di destinazione",
     "accounts": "Account",
     "contacts": "Contatti",
     "leads": "Comando",
@@ -44,25 +44,29 @@
     "status": {
       "Planning": "Pianificazione",
       "Active": "Attivo",
-      "Inactive": "Non Attivo",
+      "Inactive": "Inattivo",
       "Complete": "Completo"
     }
   },
   "labels": {
     "Create Campaign": "Create Campaign",
-    "Target Lists": "Liste di Destinazione",
+    "Target Lists": "Liste di destinazione",
     "Statistics": "Statistiche",
     "hard": "duro",
     "soft": "leggeto",
     "Unsubscribe": "Annulla l'iscrizione",
     "Mass Emails": "Email Massive",
-    "Email Templates": "Modelli Email"
+    "Email Templates": "Modelli Email",
+    "Unsubscribe again": "Unsubscribe again",
+    "Subscribe again": "Subscribe again",
+    "Create Target List": "Elenco crea target"
   },
   "presetFilters": {
     "active": "Attivo"
   },
   "messages": {
-    "unsubscribed": "Sei stato rimosso dalla nostra mailing list ."
+    "unsubscribed": "Sei stato rimosso dalla nostra mailing list.",
+    "subscribedAgain": "You are subscribed again."
   },
   "tooltips": {
     "targetLists": "Obiettivi che devono ricevere i messaggi .",

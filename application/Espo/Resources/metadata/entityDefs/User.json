@@ -30,7 +30,7 @@
         },
         "salutationName": {
             "type": "enum",
-            "options": ["", "Mr.", "Mrs.", "Ms.", "Dr."]
+            "options": ["", "Mr.", "Ms.", "Mrs.", "Dr."]
         },
         "firstName": {
             "type": "varchar",
@@ -129,6 +129,26 @@
             "notStorable": true,
             "disabled": true
         },
+        "acceptanceStatusMeetings": {
+            "type": "enum",
+            "notStorable": true,
+            "layoutListDisabled": true,
+            "layoutDetailDisabled": true,
+            "layoutMassUpdateDisabled": true,
+            "view": "crm:views/lead/fields/acceptance-status",
+            "link": "meetings",
+            "column": "status"
+        },
+        "acceptanceStatusCalls": {
+            "type": "enum",
+            "notStorable": true,
+            "layoutListDisabled": true,
+            "layoutDetailDisabled": true,
+            "layoutMassUpdateDisabled": true,
+            "view": "crm:views/lead/fields/acceptance-status",
+            "link": "calls",
+            "column": "status"
+        },
         "teamRole": {
             "type": "varchar",
             "notStorable": true,
@@ -191,6 +211,11 @@
         "createdAt": {
             "type": "datetime",
             "readOnly": true
+        },
+        "createdBy": {
+            "type": "link",
+            "readOnly": true,
+            "view": "views/fields/user"
         }
     },
     "links": {
@@ -209,6 +234,10 @@
                 }
             },
             "layoutRelationshipsDisabled": true
+        },
+        "createdBy": {
+            "type": "belongsTo",
+            "entity": "User"
         },
         "roles": {
             "type": "hasMany",

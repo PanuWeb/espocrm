@@ -10,38 +10,38 @@
   },
   "fields": {
     "name": "Nombre",
-    "status": "Estado",
+    "status": "Estatus",
     "type": "Tipo",
-    "attachments": "Archivos adjuntos",
-    "publishDate": "Fecha de publicación",
-    "expirationDate": "Fecha de caducidad",
+    "attachments": "Datos adjuntos",
+    "publishDate": "Fecha de Publicación",
+    "expirationDate": "Fecha de Expiración",
     "description": "Descripción",
     "body": "Cuerpo",
-    "categories": "Categorias",
+    "categories": "Categorías",
     "language": "Idioma",
     "portals": "Portales"
   },
   "links": {
     "cases": "Casos",
     "opportunities": "Oportunidades",
-    "categories": "Categorias",
+    "categories": "Categorías",
     "portals": "Portales"
   },
   "options": {
     "status": {
-      "In Review": "En revisión",
+      "In Review": "En Revisión",
       "Draft": "Borrador",
-      "Archived": "Archivado",
+      "Archived": "Arcivado",
       "Published": "Publicado"
     },
     "type": {
       "Article": "Artículo"
     }
   },
-  "tooltips": {
-    "portals": "El artículo estará disponible sólo en los portales especificados."
-  },
   "presetFilters": {
     "published": "Publicado"
+  },
+  "tooltips": {
+    "portals": "Article will be available only in specified portals."
   }
 }

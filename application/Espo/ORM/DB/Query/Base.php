@@ -65,6 +65,7 @@ abstract class Base
         '!=s' => 'NOT IN',
         '=s' => 'IN',
         '!=' => '<>',
+        '!*' => 'NOT LIKE',
         '*' => 'LIKE',
         '>=' => '>=',
         '<=' => '<=',
@@ -82,6 +83,9 @@ abstract class Base
         'MONTH',
         'DAY',
         'YEAR',
+        'WEEK',
+        'WEEK_0',
+        'WEEK_1',
         'DAYOFWEEK',
         'DAYOFWEEK_NUMBER',
         'MONTH_NUMBER',
@@ -91,6 +95,9 @@ abstract class Base
         'HOUR',
         'MINUTE_NUMBER',
         'MINUTE',
+        'WEEK_NUMBER',
+        'WEEK_NUMBER_0',
+        'WEEK_NUMBER_1',
         'LOWER',
         'UPPER',
         'TRIM',
@@ -238,6 +245,11 @@ abstract class Base
                 return "DATE_FORMAT({$part}, '%Y-%m')";
             case 'DAY':
                 return "DATE_FORMAT({$part}, '%Y-%m-%d')";
+            case 'WEEK':
+            case 'WEEK_0':
+                return "CONCAT(YEAR({$part}), '/', WEEK({$part}, 0))";
+            case 'WEEK_1':
+                return "CONCAT(YEAR({$part}), '/', WEEK({$part}, 1))";
             case 'MONTH_NUMBER':
                 $function = 'MONTH';
                 break;
@@ -247,6 +259,13 @@ abstract class Base
             case 'YEAR_NUMBER':
                 $function = 'YEAR';
                 break;
+            case 'WEEK_NUMBER':
+                $function = 'WEEK';
+                break;
+            case 'WEEK_NUMBER_0':
+                return "WEEK({$part}, 0)";
+            case 'WEEK_NUMBER_1':
+                return "WEEK({$part}, 1)";
             case 'HOUR_NUMBER':
                 $function = 'HOUR';
                 break;
@@ -279,13 +298,14 @@ abstract class Base
         if (strpos($field, ':')) {
             list($function, $field) = explode(':', $field);
         }
+        if (!empty($function)) {
+            $function = preg_replace('/[^A-Za-z0-9_]+/', '', $function);
+        }
+
         if (strpos($field, '.')) {
             list($relName, $field) = explode('.', $field);
         }
 
-        if (!empty($function)) {
-            $function = preg_replace('/[^A-Za-z0-9_]+/', '', $function);
-        }
         if (!empty($relName)) {
             $relName = preg_replace('/[^A-Za-z0-9_]+/', '', $relName);
         }
@@ -377,6 +397,9 @@ abstract class Base
                 $fieldPath = $fieldDefs['select'];
             } else {
                 if (!empty($fieldDefs['notStorable'])) {
+                    continue;
+                }
+                if ($attributeType === null) {
                     continue;
                 }
                 $fieldPath = $this->getFieldPath($entity, $attribute);

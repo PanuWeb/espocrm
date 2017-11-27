@@ -2,7 +2,8 @@
   "labels": {
     "Converted To": "Convertito in",
     "Create Lead": "Crea Guida",
-    "Convert": "Convertire"
+    "Convert": "Convertire",
+    "convert": "convertire"
   },
   "fields": {
     "name": "Nome",
@@ -23,7 +24,12 @@
     "createdOpportunity": "Opportunità",
     "campaign": "Campagnia",
     "targetLists": "Liste di destinazione",
-    "targetList": "Lista di destinazione"
+    "targetList": "Lista di destinazione",
+    "industry": "Settore",
+    "acceptanceStatus": "Stato accettazione",
+    "opportunityAmountCurrency": "Valuta dell'importo della proposta",
+    "acceptanceStatusMeetings": "Stato accettazione (riunioni)",
+    "acceptanceStatusCalls": "Stato accettazione (chiamate)"
   },
   "links": {
     "targetLists": "Liste di destinazione",

@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "064c61d7e728851cad5d703c85ade74d",
-    "content-hash": "02c2bb32ee1f881379ee82f5d375419d",
+    "hash": "43c1b44763a8e28beff0d02e7f724a89",
+    "content-hash": "0166ff66e4d3ba330526f5e9f036f2b8",
     "packages": [
         {
             "name": "composer/semver",
@@ -688,16 +688,16 @@
         },
         {
             "name": "php-mime-mail-parser/php-mime-mail-parser",
-            "version": "2.5.0",
+            "version": "2.9.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-mime-mail-parser/php-mime-mail-parser.git",
-                "reference": "9e4da9b71fa653782fa622ddb4363709aabcb714"
+                "reference": "c6884c7bc77adbf55979db99841195b232fd30f1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-mime-mail-parser/php-mime-mail-parser/zipball/9e4da9b71fa653782fa622ddb4363709aabcb714",
-                "reference": "9e4da9b71fa653782fa622ddb4363709aabcb714",
+                "url": "https://api.github.com/repos/php-mime-mail-parser/php-mime-mail-parser/zipball/c6884c7bc77adbf55979db99841195b232fd30f1",
+                "reference": "c6884c7bc77adbf55979db99841195b232fd30f1",
                 "shasum": ""
             },
             "require": {
@@ -764,7 +764,7 @@
                 "mailparse",
                 "mime"
             ],
-            "time": "2016-10-07 16:46:22"
+            "time": "2017-11-02 05:49:00"
         },
         {
             "name": "phpoffice/phpexcel",
@@ -863,16 +863,16 @@
         },
         {
             "name": "slim/slim",
-            "version": "2.4.2",
+            "version": "2.6.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/slimphp/Slim.git",
-                "reference": "3a2ac723f17b5d81607287ff28575d38b9fbc70e"
+                "reference": "20a02782f76830b67ae56a5c08eb1f563c351a37"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/slimphp/Slim/zipball/3a2ac723f17b5d81607287ff28575d38b9fbc70e",
-                "reference": "3a2ac723f17b5d81607287ff28575d38b9fbc70e",
+                "url": "https://api.github.com/repos/slimphp/Slim/zipball/20a02782f76830b67ae56a5c08eb1f563c351a37",
+                "reference": "20a02782f76830b67ae56a5c08eb1f563c351a37",
                 "shasum": ""
             },
             "require": {
@@ -905,7 +905,7 @@
                 "rest",
                 "router"
             ],
-            "time": "2014-02-16 18:18:25"
+            "time": "2015-03-08 18:41:17"
         },
         {
             "name": "tecnickcom/tcpdf",
@@ -1022,16 +1022,16 @@
         },
         {
             "name": "zbateson/mail-mime-parser",
-            "version": "0.4.1",
+            "version": "0.4.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/zbateson/MailMimeParser.git",
-                "reference": "63dec759b5933cd858302e058ebb954f7c48e522"
+                "reference": "0fa39035c121c166f9ad3a47d41ec70423558cf2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/zbateson/MailMimeParser/zipball/63dec759b5933cd858302e058ebb954f7c48e522",
-                "reference": "63dec759b5933cd858302e058ebb954f7c48e522",
+                "url": "https://api.github.com/repos/zbateson/MailMimeParser/zipball/0fa39035c121c166f9ad3a47d41ec70423558cf2",
+                "reference": "0fa39035c121c166f9ad3a47d41ec70423558cf2",
                 "shasum": ""
             },
             "require": {
@@ -1040,9 +1040,9 @@
             },
             "require-dev": {
                 "evert/phpdoc-md": "~0.1.1",
-                "phing/phing": "2.*",
-                "phpdocumentor/phpdocumentor": "2.*",
-                "phpunit/phpunit": "~4.8"
+                "phing/phing": "~2.15.0",
+                "phpdocumentor/phpdocumentor": "~2.8.0",
+                "phpunit/phpunit": "~4.5.0"
             },
             "type": "library",
             "autoload": {
@@ -1069,7 +1069,7 @@
                 "parser",
                 "php-imap"
             ],
-            "time": "2017-03-05 22:50:58"
+            "time": "2017-11-16 02:07:34"
         },
         {
             "name": "zendframework/zend-crypt",
